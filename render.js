@@ -3,12 +3,18 @@
 
     const container = document.getElementById("sprites");
 
-    async function show(uri) {
+    async function render() {
+        const uri = new URLSearchParams(location.search).get('uri');
+        if (!uri) {
+            container.innerText = '';
+            return;
+        }
+
         container.setAttribute('aria-busy', true);
         container.innerText = '';
 
-        const base = uri.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
-        const data = await fetch(base + '.json').then(res => res.json());
+        const stem = uri.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
+        const data = await fetch(stem + '.json').then(res => res.json());
 
         for (const key of Object.keys(data.mc)) {
             const animation = data.mc[key];
@@ -56,19 +62,20 @@
         container.removeAttribute('aria-busy');
     }
 
-    const form = document.getElementById('baseForm');
-    const input = document.getElementById('baseInput');
+    window.addEventListener('popstate', () => render());
+
+    const form = document.getElementById('uriForm');
     form.addEventListener('submit', e => {
-        show(input.value);
+        if (form.uri.value !== new URLSearchParams(location.search).get('uri')) {
+            history.pushState({}, '', `?uri=${form.uri.value}`);
+            render();
+        }
         e.preventDefault();
     });
 
-    const [, uri] = location.search.slice(1).
-        split('&').
-        map(q => q.split('=')).
-        find(([k,]) => k == 'uri');
+    const uri = new URLSearchParams(location.search).get('uri');
     if (uri) {
-        input.value = uri;
-        show(uri);
+        form.uri.value = uri;
+        render();
     }
 })();
