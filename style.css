@@ -1,9 +1,3 @@
 .uri-input {
     width: 500px;
 }
-
-.sprite {
-	background: url(sprite.png) no-repeat;
-	height: 0;
-	overflow: hidden;
-}

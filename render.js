@@ -43,7 +43,6 @@
 
             const sprite = document.createElement('div');
             sprite.style.backgroundImage = `url(${uri})`;
-            sprite.classList.add('sprite');
             let i = 0;
             setInterval(() => {
                 const frame = animation.frames[i];
