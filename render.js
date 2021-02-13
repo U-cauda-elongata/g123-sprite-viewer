@@ -29,32 +29,40 @@
             header.id = headerId;
             section.appendChild(header);
 
-            const view = document.createElement('div');
+            const view = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             view.setAttribute('aria-labelledby', headerId);
-            view.setAttribute('role', 'img');
-            const x = -Math.min(...animation.frames.map(frame => frame.x));
-            const y = -Math.min(...animation.frames.map(frame => frame.y));
-            const w = Math.max(...animation.frames.map(frame => data.res[frame.res].w));
-            const h = Math.max(...animation.frames.map(frame => data.res[frame.res].h));
-            view.style.width = (w-x) + 'px';
-            view.style.height = (h-y) + 'px';
-            view.style.paddingLeft = x + 'px';
-            view.style.paddingTop = y + 'px';
+            const x = Math.min(...animation.frames.map(frame => frame.x));
+            const y = Math.min(...animation.frames.map(frame => frame.y));
+            const w = Math.max(...animation.frames.map(frame => frame.x - x + data.res[frame.res].w));
+            const h = Math.max(...animation.frames.map(frame => frame.y - y + data.res[frame.res].h));
+            view.setAttribute('width', `${w}px`);
+            view.setAttribute('height', `${h}px`);
+            view.setAttribute('preserveAspectRatio', 'xMinYMin');
+            const clip = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            {
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+                clipPath.id = `clip-${key}`;
+                clipPath.appendChild(clip);
+                defs.appendChild(clipPath);
+                view.appendChild(defs);
+                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                image.setAttribute('href', uri);
+                image.setAttribute('clip-path', `url(#clip-${key})`);
+                view.appendChild(image);
+            }
 
-            const sprite = document.createElement('div');
-            sprite.style.backgroundImage = `url(${uri})`;
             let i = 0;
             setInterval(() => {
                 const frame = animation.frames[i];
                 const res = data.res[frame.res];
-                sprite.style.backgroundPosition = `${-res.x}px ${-res.y}px`;
-                sprite.style.width = `${res.w}px`;
-                sprite.style.height = `${res.h}px`;
-                sprite.style.marginLeft = `${frame.x}px`;
-                sprite.style.marginTop = `${frame.y}px`;
+                view.setAttribute('viewBox', `${res.x-frame.x+x} ${res.y-frame.y+y} ${w} ${h}`);
+                clip.setAttribute('x', res.x);
+                clip.setAttribute('y', res.y);
+                clip.setAttribute('width', res.w);
+                clip.setAttribute('height', res.h);
                 i = (i+1) % animation.frames.length;
             }, 1000 / animation.frameRate);
-            view.appendChild(sprite);
             section.appendChild(view);
 
             container.appendChild(section);
