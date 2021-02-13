@@ -51,4 +51,13 @@
         show(input.value);
         e.preventDefault();
     });
+
+    const [, base] = location.search.slice(1).
+        split('&').
+        map(q => q.split('=')).
+        find(([k,]) => k == 'base');
+    if (base) {
+        input.value = base;
+        show(base);
+    }
 })();
