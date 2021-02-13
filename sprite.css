@@ -1,0 +1,5 @@
+.sprite {
+	background: url(sprite.png) no-repeat;
+	height: 0;
+	overflow: hidden;
+}
