@@ -5,6 +5,7 @@
 
     async function show(base) {
         container.setAttribute('aria-busy', true);
+        container.innerText = '';
 
         const data = await fetch(base + '.json').then(res => res.json());
 
