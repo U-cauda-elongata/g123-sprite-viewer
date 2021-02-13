@@ -23,18 +23,27 @@
             const view = document.createElement('div');
             view.setAttribute('aria-labelledby', headerId);
             view.setAttribute('role', 'img');
-            view.style.width = Math.max(...animation.frames.map(frame => data.res[frame.res].w)) + 'px';
-            view.style.height = Math.max(...animation.frames.map(frame => data.res[frame.res].h)) + 'px';
+            const x = -Math.min(...animation.frames.map(frame => frame.x));
+            const y = -Math.min(...animation.frames.map(frame => frame.y));
+            const w = Math.max(...animation.frames.map(frame => data.res[frame.res].w));
+            const h = Math.max(...animation.frames.map(frame => data.res[frame.res].h));
+            view.style.width = (w-x) + 'px';
+            view.style.height = (h-y) + 'px';
+            view.style.paddingLeft = x + 'px';
+            view.style.paddingTop = y + 'px';
 
             const sprite = document.createElement('div');
             sprite.style.backgroundImage = `url(${base + '.png'})`;
             sprite.classList.add('sprite');
             let i = 0;
             setInterval(() => {
-                const res = data.res[animation.frames[i].res];
+                const frame = animation.frames[i];
+                const res = data.res[frame.res];
                 sprite.style.backgroundPosition = `-${res.x}px -${res.y}px`;
                 sprite.style.width = `${res.w}px`;
                 sprite.style.height = `${res.h}px`;
+                sprite.style.marginLeft = `${frame.x}px`;
+                sprite.style.marginTop = `${frame.y}px`;
                 i = (i+1) % animation.frames.length;
             }, 1000 / animation.frameRate);
             view.appendChild(sprite);
