@@ -3,10 +3,11 @@
 
     const container = document.getElementById("sprites");
 
-    async function show(base) {
+    async function show(uri) {
         container.setAttribute('aria-busy', true);
         container.innerText = '';
 
+        const base = uri.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
         const data = await fetch(base + '.json').then(res => res.json());
 
         for (const key of Object.keys(data.mc)) {
@@ -33,7 +34,7 @@
             view.style.paddingTop = y + 'px';
 
             const sprite = document.createElement('div');
-            sprite.style.backgroundImage = `url(${base + '.png'})`;
+            sprite.style.backgroundImage = `url(${uri})`;
             sprite.classList.add('sprite');
             let i = 0;
             setInterval(() => {
@@ -62,12 +63,12 @@
         e.preventDefault();
     });
 
-    const [, base] = location.search.slice(1).
+    const [, uri] = location.search.slice(1).
         split('&').
         map(q => q.split('=')).
-        find(([k,]) => k == 'base');
-    if (base) {
-        input.value = base;
-        show(base);
+        find(([k,]) => k == 'uri');
+    if (uri) {
+        input.value = uri;
+        show(uri);
     }
 })();
