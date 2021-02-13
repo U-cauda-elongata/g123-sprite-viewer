@@ -1,4 +1,4 @@
-(async () => {
+(() => {
     'use strict';
 
     const container = document.getElementById("sprites");
@@ -45,5 +45,10 @@
         container.removeAttribute('aria-busy');
     }
 
-    await show('https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld1');
+    const form = document.getElementById('baseForm');
+    const input = document.getElementById('baseInput');
+    form.addEventListener('submit', e => {
+        show(input.value);
+        e.preventDefault();
+    });
 })();
