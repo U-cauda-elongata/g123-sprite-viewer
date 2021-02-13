@@ -11,6 +11,8 @@
         }
 
         container.setAttribute('aria-busy', true);
+        // Prevent the height from changing while tinkering with the DOM.
+        container.style.height = `${container.scrollHeight}px`;
         container.innerText = '';
 
         const stem = uri.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
@@ -59,6 +61,7 @@
             container.appendChild(section);
         }
 
+        container.removeAttribute('style');
         container.removeAttribute('aria-busy');
     }
 
@@ -77,5 +80,15 @@
     if (uri) {
         form.uri.value = uri;
         render();
+    }
+
+    const presets = document.getElementById('presets');
+    for (const a of document.querySelectorAll('#presets a')) {
+        a.addEventListener('click', e => {
+            history.pushState(null, '', a.href);
+            form.uri.value = new URLSearchParams(a.search).get('uri');
+            render();
+            e.preventDefault();
+        });
     }
 })();
