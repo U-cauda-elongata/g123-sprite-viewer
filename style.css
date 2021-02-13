@@ -1,3 +1,7 @@
+#baseInput {
+    width: 500px;
+}
+
 .sprite {
 	background: url(sprite.png) no-repeat;
 	height: 0;
