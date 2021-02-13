@@ -46,7 +46,7 @@
             setInterval(() => {
                 const frame = animation.frames[i];
                 const res = data.res[frame.res];
-                sprite.style.backgroundPosition = `-${res.x}px -${res.y}px`;
+                sprite.style.backgroundPosition = `${-res.x}px ${-res.y}px`;
                 sprite.style.width = `${res.w}px`;
                 sprite.style.height = `${res.h}px`;
                 sprite.style.marginLeft = `${frame.x}px`;
