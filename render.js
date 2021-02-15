@@ -37,33 +37,44 @@
             const h = Math.max(...animation.frames.map(frame => frame.y - y + data.res[frame.res].h));
             view.setAttribute('width', `${w}px`);
             view.setAttribute('height', `${h}px`);
+
+            const dur = animation.frames.length / animation.frameRate;
+
+            const viewAnimate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+            viewAnimate.id = `animate${key}`;
+            viewAnimate.setAttribute('attributeName', 'viewBox');
+            viewAnimate.setAttribute('dur', `${dur}s`);
+            viewAnimate.setAttribute('calcMode', 'discrete');
+            viewAnimate.setAttribute('repeatCount', 'indefinite');
+            viewAnimate.setAttribute('values', animation.frames.map(frame => {
+                const res = data.res[frame.res];
+                return `${res.x-frame.x+x} ${res.y-frame.y+y} ${w} ${h}`;
+            }).join(';'));
+            view.appendChild(viewAnimate);
+
             const clip = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            {
-                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-                const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
-                clipPath.id = `clip-${key}`;
-                clipPath.appendChild(clip);
-                defs.appendChild(clipPath);
-                view.appendChild(defs);
-                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                image.setAttribute('href', uri);
-                image.setAttribute('clip-path', `url(#clip-${key})`);
-                view.appendChild(image);
+            for (const [attr, k] of [['x', 'x'], ['y', 'y'], ['width', 'w'], ['height', 'h']]) {
+                const clipAnimate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                clipAnimate.setAttribute('attributeName', attr);
+                clipAnimate.setAttribute('begin', `animate${key}.begin`);
+                clipAnimate.setAttribute('dur', `${dur}s`);
+                clipAnimate.setAttribute('repeatCount', 'indefinite');
+                clipAnimate.setAttribute('calcMode', 'discrete');
+                clipAnimate.setAttribute('values', animation.frames.map(frame => data.res[frame.res][k]).join(';'));
+                clip.appendChild(clipAnimate);
             }
 
-            let i = 0;
-            setInterval(() => {
-                const frame = animation.frames[i];
-                const res = data.res[frame.res];
-                view.setAttribute('viewBox', `${res.x-frame.x+x} ${res.y-frame.y+y} ${w} ${h}`);
-                clip.setAttribute('x', res.x);
-                clip.setAttribute('y', res.y);
-                clip.setAttribute('width', res.w);
-                clip.setAttribute('height', res.h);
-                i = (i+1) % animation.frames.length;
-            }, 1000 / animation.frameRate);
-            section.appendChild(view);
+            const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+            clipPath.id = `clip-${key}`;
+            clipPath.appendChild(clip);
+            view.appendChild(clipPath);
 
+            const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            image.setAttribute('href', uri);
+            image.setAttribute('clip-path', `url(#clip-${key})`);
+            view.appendChild(image);
+
+            section.appendChild(view);
             container.appendChild(section);
         }
 
