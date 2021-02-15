@@ -5,37 +5,37 @@
 	<title>Sprite viewer</title>
 	<script src="render.js" defer=""></script>
 	<link href="style.css" rel="stylesheet" />
-    <meta name="referrer" content="no-referrer"/>
+	<meta name="referrer" content="no-referrer"/>
 </head>
 <body>
-    <main>
-        <form id="uriForm">
-            <label>Sprite URI <input class="uri-input" name="uri" type="text" /></label>
-            <input type="submit" value="Show" />
-        </form>
-        <details><summary>Presets</summary><ul id="presets">
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero73.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero73.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action1.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action2.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero75.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero75.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action1.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action2.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero77.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero77.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action1.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action2.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero79.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero79.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action1.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action2.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld1.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld2.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero75atkeffect.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero75atkeffect.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero77atkeffect.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero77atkeffect.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xysIdle.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xysIdle.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xys.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xys.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/peteffect/aroeEffect.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/peteffect/aroeEffect.png</a></li>
-            <li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/petaction/xysSkill.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/petaction/xysSkill.png</a></li>
-        </ul></details>
-        <div id="sprites"></div>
-    </main>
+	<main>
+		<form id="uriForm">
+			<label>Sprite URI <input class="uri-input" name="uri" type="text" /></label>
+			<input type="submit" value="Show" />
+		</form>
+		<details><summary>Presets</summary><ul id="presets">
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero73.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero73.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action1.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero73_action2.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero75.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero75.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action1.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero75_action2.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero77.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero77.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action1.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero77_action2.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero79.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero79.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action1.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/Hero79_action2.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld1.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld1.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld2.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/monster/bossld2.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero75atkeffect.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero75atkeffect.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero77atkeffect.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/hero77atkeffect.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xysIdle.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xysIdle.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xys.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/pets/xys.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/peteffect/aroeEffect.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/effect/peteffect/aroeEffect.png</a></li>
+			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/petaction/xysSkill.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/action/petaction/xysSkill.png</a></li>
+		</ul></details>
+		<div id="sprites"></div>
+	</main>
 </body>
 </html>
