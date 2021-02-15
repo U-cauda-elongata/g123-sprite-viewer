@@ -37,7 +37,6 @@
             const h = Math.max(...animation.frames.map(frame => frame.y - y + data.res[frame.res].h));
             view.setAttribute('width', `${w}px`);
             view.setAttribute('height', `${h}px`);
-            view.setAttribute('preserveAspectRatio', 'xMinYMin');
             const clip = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             {
                 const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
