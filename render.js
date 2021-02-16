@@ -3,11 +3,10 @@
 
 	const container = document.getElementById("sprites");
 
-	async function render() {
-		const uri = new URLSearchParams(location.search).get('uri');
-		if (!uri) {
-			container.innerText = '';
-			return;
+	async function render(png, json) {
+		if (!json) {
+			const stem = png.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
+			json = `${stem}.json`;
 		}
 
 		container.setAttribute('aria-busy', true);
@@ -15,8 +14,7 @@
 		container.style.height = `${container.scrollHeight}px`;
 		container.innerText = '';
 
-		const stem = uri.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
-		const data = await fetch(stem + '.json').then(res => res.json());
+		const data = await fetch(json).then(res => res.json());
 
 		for (const key of Object.keys(data.mc)) {
 			const animation = data.mc[key];
@@ -70,7 +68,7 @@
 			view.appendChild(clipPath);
 
 			const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-			image.setAttribute('href', uri);
+			image.setAttribute('href', png);
 			image.setAttribute('clip-path', `url(#clip-${key})`);
 			view.appendChild(image);
 
@@ -82,29 +80,46 @@
 		container.removeAttribute('aria-busy');
 	}
 
-	window.addEventListener('popstate', () => render());
+	window.addEventListener('popstate', e => {
+		if (e.state) {
+			render(...e.state);
+		} else {
+			render(new URLSearchParams(location.search).get('uri'));
+		}
+	});
 
 	const form = document.getElementById('uriForm');
 	form.addEventListener('submit', e => {
 		if (form.uri.value !== new URLSearchParams(location.search).get('uri')) {
-			history.pushState({}, '', `?uri=${form.uri.value}`);
-			render();
+			history.pushState(null, '', `?uri=${form.uri.value}`);
+			render(form.uri.value);
 		}
 		e.preventDefault();
 	});
+	const onFileChange = () => {
+		if (form.png.value && form.json.value) {
+			const png = URL.createObjectURL(form.png.files[0]);
+			const json = URL.createObjectURL(form.json.files[0]);
+			history.pushState([png, json], '', location.pathname);
+			render(png, json);
+		}
+	};
+	form.png.addEventListener('change', onFileChange);
+	form.json.addEventListener('change', onFileChange);
 
 	const uri = new URLSearchParams(location.search).get('uri');
 	if (uri) {
 		form.uri.value = uri;
-		render();
+		render(uri);
 	}
 
 	const presets = document.getElementById('presets');
 	for (const a of document.querySelectorAll('#presets a')) {
 		a.addEventListener('click', e => {
 			history.pushState(null, '', a.href);
-			form.uri.value = new URLSearchParams(a.search).get('uri');
-			render();
+			const uri = new URLSearchParams(a.search).get('uri');
+			form.uri.value = uri;
+			render(uri);
 			e.preventDefault();
 		});
 	}
