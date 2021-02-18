@@ -1,3 +1,20 @@
-.uri-input {
-	width: 500px;
+label {
+	white-space: pre;
+}
+
+.input-container {
+	display: flex;
+}
+
+.input-container > label {
+	display: inline-flex;
+	flex-basis: 100%;
+}
+
+.input-container > label > input {
+	flex-basis: 100%;
+}
+
+#spriteForm {
+	max-width: 600px;
 }

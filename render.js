@@ -100,7 +100,7 @@
 		}
 	});
 
-	const form = document.getElementById('uriForm');
+	const form = document.getElementById('spriteForm');
 	form.addEventListener('submit', e => {
 		if (form.uri.value !== new URLSearchParams(location.search).get('uri')) {
 			history.pushState(null, '', `?uri=${form.uri.value}`);

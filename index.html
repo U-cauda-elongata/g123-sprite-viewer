@@ -9,17 +9,16 @@
 </head>
 <body>
 	<main>
-		<form id="uriForm">
-			<div>
-				<label>Sprite URI: <input class="uri-input" name="uri" type="text" /></label>
+		<form id="spriteForm">
+			<div class="input-container">
+				<label>Sprite URI <input name="uri" type="text" /></label>
 				<input type="submit" value="Show" />
 			</div>
-			<div>
-				Upload sprite:<table>
-					<tr><label><td>PNG</td><td><input name="png" type="file" /></td></label></tr>
-					<tr><label><td>JSON</td><td><input name="json" type="file" /></td></label></tr>
-				</table>
-			</div>
+			<fieldset>
+				<legend>Upload sprite</legend>
+				<label>PNG <input name="png" type="file" /></label>
+				<label>JSON <input name="json" type="file" /></label>
+			</fieldset>
 		</form>
 		<details><summary>Presets</summary><ul id="presets">
 			<li><a href="?uri=https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero73.png">https://cdn.g123-gandc.com/cdn/static/last/resource_jp/assets/hero/hero/hero73.png</a></li>
