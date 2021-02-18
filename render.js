@@ -1,34 +1,20 @@
 (() => {
 	'use strict';
 
-	const container = document.getElementById("sprites");
-
-	async function render(png, json) {
+	async function load(png, json) {
 		if (!json) {
 			const stem = png.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
 			json = `${stem}.json`;
 		}
 
-		container.setAttribute('aria-busy', true);
-		// Prevent the height from changing while tinkering with the DOM.
-		container.style.height = `${container.scrollHeight}px`;
-		container.innerText = '';
+		const data = await fetch(json).then(res =>
+			res.status === 200 ? res.json() : Promise.reject(`HTTP ${res.status}`)
+		);
 
-		const data = await fetch(json).then(res => res.json());
-
-		for (const key of Object.keys(data.mc)) {
+		return Object.keys(data.mc).map(key => {
 			const animation = data.mc[key];
 
-			const section = document.createElement('section');
-
-			const header = document.createElement('header');
-			header.innerText = key;
-			const headerId = `header-${key}`;
-			header.id = headerId;
-			section.appendChild(header);
-
 			const view = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-			view.setAttribute('aria-labelledby', headerId);
 			const x = Math.min(...animation.frames.map(frame => frame.x));
 			const y = Math.min(...animation.frames.map(frame => frame.y));
 			const w = Math.max(...animation.frames.map(frame => frame.x - x + data.res[frame.res].w));
@@ -72,6 +58,32 @@
 			image.setAttribute('clip-path', `url(#clip-${key})`);
 			view.appendChild(image);
 
+			return { key, view };
+		});
+	}
+
+	const container = document.getElementById("sprites");
+
+	async function render(png, json) {
+		let animations;
+		try {
+			animations = await load(png, json);
+		} catch (e) {
+			container.innerText = '';
+			throw e;
+		}
+
+		container.setAttribute('aria-busy', true);
+		container.innerText = '';
+
+		for (const { key, view } of animations) {
+			const section = document.createElement('section');
+			const header = document.createElement('header');
+			header.innerText = key;
+			const headerId = `header-${key}`;
+			header.id = headerId;
+			view.setAttribute('aria-labelledby', headerId);
+			section.appendChild(header);
 			section.appendChild(view);
 			container.appendChild(section);
 		}
