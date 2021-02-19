@@ -7,6 +7,13 @@
 			json = `${stem}.json`;
 		}
 
+		const buf = await fetch(png).then(res =>
+			res.status === 200 ? res.arrayBuffer() : Promise.reject(`HTTP ${res.status}`)
+		);
+		const bin = Array.prototype.map.call(new Uint8Array(buf), b => String.fromCharCode(b)).
+			join('');
+		const href = `data:image/png;base64,${btoa(bin)}`;
+
 		const data = await fetch(json).then(res =>
 			res.status === 200 ? res.json() : Promise.reject(`HTTP ${res.status}`)
 		);
@@ -14,33 +21,39 @@
 		return Object.keys(data.mc).map(key => {
 			const animation = data.mc[key];
 
-			const view = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+			const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+			title.textContent = key;
+			svg.appendChild(title);
+
 			const x = Math.min(...animation.frames.map(frame => frame.x));
 			const y = Math.min(...animation.frames.map(frame => frame.y));
 			const w = Math.max(...animation.frames.map(frame => frame.x - x + data.res[frame.res].w));
 			const h = Math.max(...animation.frames.map(frame => frame.y - y + data.res[frame.res].h));
-			view.setAttribute('width', `${w}px`);
-			view.setAttribute('height', `${h}px`);
+			svg.setAttribute('width', `${w}px`);
+			svg.setAttribute('height', `${h}px`);
 
 			const dur = animation.frames.length / animation.frameRate;
 
-			const viewAnimate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
-			viewAnimate.id = `animate${key}`;
-			viewAnimate.setAttribute('attributeName', 'viewBox');
-			viewAnimate.setAttribute('dur', `${dur}s`);
-			viewAnimate.setAttribute('calcMode', 'discrete');
-			viewAnimate.setAttribute('repeatCount', 'indefinite');
-			viewAnimate.setAttribute('values', animation.frames.map(frame => {
+			const svgAnimate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+			svgAnimate.id = 'animate';
+			svgAnimate.setAttribute('attributeName', 'viewBox');
+			svgAnimate.setAttribute('dur', `${dur}s`);
+			svgAnimate.setAttribute('calcMode', 'discrete');
+			svgAnimate.setAttribute('repeatCount', 'indefinite');
+			svgAnimate.setAttribute('values', animation.frames.map(frame => {
 				const res = data.res[frame.res];
 				return `${res.x-frame.x+x} ${res.y-frame.y+y} ${w} ${h}`;
 			}).join(';'));
-			view.appendChild(viewAnimate);
+			svg.appendChild(svgAnimate);
 
 			const clip = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
 			for (const [attr, k] of [['x', 'x'], ['y', 'y'], ['width', 'w'], ['height', 'h']]) {
 				const clipAnimate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
 				clipAnimate.setAttribute('attributeName', attr);
-				clipAnimate.setAttribute('begin', `animate${key}.begin`);
+				clipAnimate.setAttribute('begin', `animate.begin`);
 				clipAnimate.setAttribute('dur', `${dur}s`);
 				clipAnimate.setAttribute('repeatCount', 'indefinite');
 				clipAnimate.setAttribute('calcMode', 'discrete');
@@ -49,16 +62,16 @@
 			}
 
 			const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
-			clipPath.id = `clip-${key}`;
+			clipPath.id = 'clip';
 			clipPath.appendChild(clip);
-			view.appendChild(clipPath);
+			svg.appendChild(clipPath);
 
 			const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-			image.setAttribute('href', png);
-			image.setAttribute('clip-path', `url(#clip-${key})`);
-			view.appendChild(image);
+			image.setAttribute('href', href);
+			image.setAttribute('clip-path', 'url(#clip)');
+			svg.appendChild(image);
 
-			return { key, view };
+			return { key, svg };
 		});
 	}
 
@@ -76,15 +89,19 @@
 		container.setAttribute('aria-busy', true);
 		container.innerText = '';
 
-		for (const { key, view } of animations) {
+		const ser = new XMLSerializer();
+		for (const { key, svg } of animations) {
 			const section = document.createElement('section');
+
 			const header = document.createElement('header');
 			header.innerText = key;
-			const headerId = `header-${key}`;
-			header.id = headerId;
-			view.setAttribute('aria-labelledby', headerId);
 			section.appendChild(header);
-			section.appendChild(view);
+
+			const img = document.createElement('img');
+			img.alt = key;
+			img.src = `data:image/svg+xml,${encodeURIComponent(ser.serializeToString(svg))}`;
+			section.appendChild(img);
+
 			container.appendChild(section);
 		}
 
