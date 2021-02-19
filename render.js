@@ -19,12 +19,14 @@
 		);
 
 		return Object.keys(data.mc).map(key => {
+			const NS = 'http://www.w3.org/2000/svg';
+
 			const animation = data.mc[key];
 
-			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-			svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+			const svg = document.createElementNS(NS, 'svg');
+			svg.setAttribute('xmlns', NS);
 
-			const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+			const title = document.createElementNS(NS, 'title');
 			title.textContent = key;
 			svg.appendChild(title);
 
@@ -37,7 +39,7 @@
 
 			const dur = animation.frames.length / animation.frameRate;
 
-			const svgAnimate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+			const svgAnimate = document.createElementNS(NS, 'animate');
 			svgAnimate.id = 'animate';
 			svgAnimate.setAttribute('attributeName', 'viewBox');
 			svgAnimate.setAttribute('dur', `${dur}s`);
@@ -49,9 +51,9 @@
 			}).join(';'));
 			svg.appendChild(svgAnimate);
 
-			const clip = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+			const clip = document.createElementNS(NS, 'rect');
 			for (const [attr, k] of [['x', 'x'], ['y', 'y'], ['width', 'w'], ['height', 'h']]) {
-				const clipAnimate = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+				const clipAnimate = document.createElementNS(NS, 'animate');
 				clipAnimate.setAttribute('attributeName', attr);
 				clipAnimate.setAttribute('begin', `animate.begin`);
 				clipAnimate.setAttribute('dur', `${dur}s`);
@@ -61,12 +63,12 @@
 				clip.appendChild(clipAnimate);
 			}
 
-			const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+			const clipPath = document.createElementNS(NS, 'clipPath');
 			clipPath.id = 'clip';
 			clipPath.appendChild(clip);
 			svg.appendChild(clipPath);
 
-			const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+			const image = document.createElementNS(NS, 'image');
 			image.setAttribute('href', href);
 			image.setAttribute('clip-path', 'url(#clip)');
 			svg.appendChild(image);
