@@ -2,21 +2,13 @@
 	'use strict';
 
 	async function load(png, json) {
-		if (!json) {
-			const stem = png.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
-			json = `${stem}.json`;
-		}
-
-		const buf = await fetch(png).then(res =>
-			res.status === 200 ? res.arrayBuffer() : Promise.reject(`HTTP ${res.status}`)
-		);
-		const bin = Array.prototype.map.call(new Uint8Array(buf), b => String.fromCharCode(b)).
-			join('');
-		const href = `data:image/png;base64,${btoa(bin)}`;
-
-		const data = await fetch(json).then(res =>
-			res.status === 200 ? res.json() : Promise.reject(`HTTP ${res.status}`)
-		);
+		const href = await new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.addEventListener('load', () => resolve(reader.result));
+			reader.addEventListener('error', reject);
+			reader.readAsDataURL(png);
+		});
+		const data = JSON.parse(await json.text());
 
 		return Object.keys(data.mc).map(key => {
 			const NS = 'http://www.w3.org/2000/svg';
@@ -80,12 +72,38 @@
 	const container = document.getElementById("sprites");
 
 	async function render(png, json) {
+		if (!json) {
+			const stem = png.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
+			json = `${stem}.json`;
+		}
+
+		async function fetchBlob(url_or_blob) {
+			if (typeof url_or_blob === 'string') {
+				const res = await fetch(url_or_blob);
+				if (res.status == 200) {
+					return await res.blob();
+				} else {
+					throw `HTTP ${res.status}`;
+				}
+			} else {
+				return url_or_blob;
+			}
+		}
+
 		let animations;
 		try {
-			animations = await load(png, json);
+			animations = await load(await fetchBlob(png), await fetchBlob(json));
 		} catch (e) {
 			container.innerText = '';
 			throw e;
+		}
+
+		let stem = typeof png === 'string' ? png.slice(png.lastIndexOf('/') + 1) : png.name;
+		{
+			const i = stem.lastIndexOf('.');
+			if (i >= 0) {
+				stem = stem.slice(0, i);
+			}
 		}
 
 		container.setAttribute('aria-busy', true);
@@ -99,10 +117,21 @@
 			header.innerText = key;
 			section.appendChild(header);
 
+			const blob = new Blob([ser.serializeToString(svg)], { type: 'image/svg+xml' });
+			const href = URL.createObjectURL(blob);
+			window.addEventListener('popstate', () => URL.revokeObjectURL(href), { once: true });
+			const a = document.createElement('a');
+			if (stem) {
+				a.download = `${stem}.${key}.svg`;
+			} else {
+				a.download = `${key}.svg`;
+			}
+			a.href = href;
 			const img = document.createElement('img');
 			img.alt = key;
-			img.src = `data:image/svg+xml,${encodeURIComponent(ser.serializeToString(svg))}`;
-			section.appendChild(img);
+			img.src = href;
+			a.appendChild(img);
+			section.appendChild(a);
 
 			container.appendChild(section);
 		}
@@ -129,8 +158,8 @@
 	});
 	const onFileChange = () => {
 		if (form.png.value && form.json.value) {
-			const png = URL.createObjectURL(form.png.files[0]);
-			const json = URL.createObjectURL(form.json.files[0]);
+			const png = form.png.files[0];
+			const json = form.json.files[0];
 			history.pushState([png, json], '', location.pathname);
 			render(png, json);
 		}
