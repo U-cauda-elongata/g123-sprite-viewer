@@ -2,13 +2,15 @@
 	'use strict';
 
 	async function load(png, json) {
-		const href = await new Promise((resolve, reject) => {
+		png = new Promise((resolve, reject) => {
 			const reader = new FileReader();
 			reader.addEventListener('load', () => resolve(reader.result));
 			reader.addEventListener('error', reject);
 			reader.readAsDataURL(png);
 		});
-		const data = JSON.parse(await json.text());
+		json = json.text();
+		const href = await png;
+		const data = JSON.parse(await json);
 
 		return Object.keys(data.mc).map(key => {
 			const NS = 'http://www.w3.org/2000/svg';
@@ -92,7 +94,9 @@
 
 		let animations;
 		try {
-			animations = await load(await fetchBlob(png), await fetchBlob(json));
+			const p = fetchBlob(png);
+			const j = fetchBlob(json);
+			animations = await load(await p, await j);
 		} catch (e) {
 			container.innerText = '';
 			throw e;
