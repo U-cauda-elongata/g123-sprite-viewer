@@ -28,35 +28,22 @@
 			const y = Math.min(...animation.frames.map(frame => frame.y));
 			const w = Math.max(...animation.frames.map(frame => frame.x - x + data.res[frame.res].w));
 			const h = Math.max(...animation.frames.map(frame => frame.y - y + data.res[frame.res].h));
+			svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
 			svg.setAttribute('width', `${w}px`);
 			svg.setAttribute('height', `${h}px`);
 
 			const dur = animation.frames.length / animation.frameRate;
 
-			const svgAnimate = document.createElementNS(NS, 'animate');
-			svgAnimate.id = 'animate';
-			svgAnimate.setAttribute('attributeName', 'viewBox');
-			svgAnimate.setAttribute('dur', `${dur}s`);
-			svgAnimate.setAttribute('calcMode', 'discrete');
-			svgAnimate.setAttribute('repeatCount', 'indefinite');
-			svgAnimate.setAttribute('values', animation.frames.map(frame => {
-				const res = data.res[frame.res];
-				return `${res.x-frame.x+x} ${res.y-frame.y+y} ${w} ${h}`;
-			}).join(';'));
-			svg.appendChild(svgAnimate);
-
-			const clip = document.createElementNS(NS, 'rect');
-			for (const [attr, k] of [['x', 'x'], ['y', 'y'], ['width', 'w'], ['height', 'h']]) {
-				const clipAnimate = document.createElementNS(NS, 'animate');
-				clipAnimate.setAttribute('attributeName', attr);
-				clipAnimate.setAttribute('begin', `animate.begin`);
-				clipAnimate.setAttribute('dur', `${dur}s`);
-				clipAnimate.setAttribute('repeatCount', 'indefinite');
-				clipAnimate.setAttribute('calcMode', 'discrete');
-				clipAnimate.setAttribute('values', animation.frames.map(frame => data.res[frame.res][k]).join(';'));
-				clip.appendChild(clipAnimate);
+			function createAnimate(attr) {
+				const ret = document.createElementNS(NS, 'animate');
+				ret.setAttribute('attributeName', attr);
+				ret.setAttribute('dur', `${dur}s`);
+				ret.setAttribute('repeatCount', 'indefinite');
+				ret.setAttribute('calcMode', 'discrete');
+				return ret;
 			}
 
+			const clip = document.createElementNS(NS, 'rect');
 			const clipPath = document.createElementNS(NS, 'clipPath');
 			clipPath.id = 'clip';
 			clipPath.appendChild(clip);
@@ -66,6 +53,31 @@
 			image.setAttribute('href', href);
 			image.setAttribute('clip-path', 'url(#clip)');
 			svg.appendChild(image);
+
+			for (const [k, v] of [['x', x], ['y', y]]) {
+				const clipAnimate = createAnimate(k);
+				clipAnimate.setAttribute(
+					'values',
+					animation.frames.map(frame => frame[k] - v).join(';'),
+				);
+				clip.appendChild(clipAnimate);
+
+				const imageAnimate = createAnimate(k);
+				imageAnimate.setAttribute(
+					'values',
+					animation.frames.map(frame => frame[k] - v - data.res[frame.res][k]).join(';'),
+				);
+				image.appendChild(imageAnimate);
+			}
+
+			for (const [attr, k] of [['width', 'w'], ['height', 'h']]) {
+				const clipAnimate = createAnimate(attr);
+				clipAnimate.setAttribute(
+					'values',
+					animation.frames.map(frame => data.res[frame.res][k]).join(';'),
+				);
+				clip.appendChild(clipAnimate);
+			}
 
 			return { key, svg };
 		});
