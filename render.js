@@ -1,26 +1,53 @@
+'use strict';
+
 (() => {
-	'use strict';
+	/**
+	 * @typedef {object} GandcAssetMetadata
+	 * @property {Record<string, GandcAnimation>} mc
+	 * @property {Record<string, GandcSprite>} res
+	 */
+	/**
+	 * @typedef {object} GandcAnimation
+	 * @property {number} frameRate
+	 * @property {GandcAnimationFrame[]} frames
+	 */
+	/**
+	 * @typedef {object} GandcAnimationFrame
+	 * @property {keyof GandcAssetMetadata['res']} res
+	 * @property {number} x
+	 * @property {number} y
+	 */
+	/**
+	 * @typedef {object} GandcSprite
+	 * @property {number} x
+	 * @property {number} y
+	 * @property {number} w
+	 * @property {number} h
+	 */
 
+	/**
+	 * @param {Blob} png
+	 * @param {Blob} json
+	 * @returns {Promise<{ key: string, svg: SVGSVGElement }[]>}
+	 */
 	async function load(png, json) {
-		png = new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.addEventListener('load', () => resolve(reader.result));
-			reader.addEventListener('error', reject);
-			reader.readAsDataURL(png);
-		});
-		json = json.text();
-		const href = await png;
-		const data = JSON.parse(await json);
+		/** @type {[string, GandcAssetMetadata]} */
+		const [href, data] = await Promise.all([
+			new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.addEventListener('load', () => resolve(reader.result));
+				reader.addEventListener('error', () => reject(reader.error));
+				reader.readAsDataURL(png);
+			}),
+			json.text().then(JSON.parse),
+		]);
 
-		return Object.keys(data.mc).map(key => {
-			const NS = 'http://www.w3.org/2000/svg';
+		const SVG_NS = 'http://www.w3.org/2000/svg';
+		return Object.entries(data.mc).map(([key, animation]) => {
+			const svg = document.createElementNS(SVG_NS, 'svg');
+			svg.setAttribute('xmlns', SVG_NS);
 
-			const animation = data.mc[key];
-
-			const svg = document.createElementNS(NS, 'svg');
-			svg.setAttribute('xmlns', NS);
-
-			const title = document.createElementNS(NS, 'title');
+			const title = document.createElementNS(SVG_NS, 'title');
 			title.textContent = key;
 			svg.appendChild(title);
 
@@ -34,8 +61,12 @@
 
 			const dur = animation.frames.length / animation.frameRate;
 
+			/**
+			 * @param {string} attr
+			 * @returns {SVGAnimateElement}
+			 */
 			function createAnimate(attr) {
-				const ret = document.createElementNS(NS, 'animate');
+				const ret = document.createElementNS(SVG_NS, 'animate');
 				ret.setAttribute('attributeName', attr);
 				ret.setAttribute('dur', `${dur}s`);
 				ret.setAttribute('repeatCount', 'indefinite');
@@ -43,18 +74,18 @@
 				return ret;
 			}
 
-			const clip = document.createElementNS(NS, 'rect');
-			const clipPath = document.createElementNS(NS, 'clipPath');
+			const clip = document.createElementNS(SVG_NS, 'rect');
+			const clipPath = document.createElementNS(SVG_NS, 'clipPath');
 			clipPath.id = 'clip';
 			clipPath.appendChild(clip);
 			svg.appendChild(clipPath);
 
-			const image = document.createElementNS(NS, 'image');
+			const image = document.createElementNS(SVG_NS, 'image');
 			image.setAttribute('href', href);
 			image.setAttribute('clip-path', 'url(#clip)');
 			svg.appendChild(image);
 
-			for (const [k, v] of [['x', x], ['y', y]]) {
+			for (const [k, v] of /** @type {['x' | 'y', number][]} */ ([['x', x], ['y', y]])) {
 				const clipAnimate = createAnimate(k);
 				clipAnimate.setAttribute(
 					'values',
@@ -70,7 +101,7 @@
 				image.appendChild(imageAnimate);
 			}
 
-			for (const [attr, k] of [['width', 'w'], ['height', 'h']]) {
+			for (const [attr, k] of /** @type {[string, 'w' | 'h'][]} */ ([['width', 'w'], ['height', 'h']])) {
 				const clipAnimate = createAnimate(attr);
 				clipAnimate.setAttribute(
 					'values',
@@ -83,21 +114,43 @@
 		});
 	}
 
-	const container = document.getElementById("sprites");
+	const container = /** @type {HTMLDivElement} */ (document.getElementById('sprites'));
 
+	/**
+	 * @overload
+	 * @param {string} png
+	 * @returns {Promise<void>}
+	 */
+	/**
+	 * @overload
+	 * @param {File} png
+	 * @param {File} json
+	 * @returns {Promise<void>}
+	 */
+	/**
+	 * @param {string | File} png
+	 * @param {string | File} [json]
+	 * @returns {Promise<void>}
+	 */
 	async function render(png, json) {
 		if (!json) {
-			const stem = png.match(/(.*\/[^/.]*)(?:\..*)?/)[1];
+			const pngUrl = /** @type {string} */ (png);
+			const match = /** @type {RegExpMatchArray} */ (pngUrl.match(/(.*\/[^/.]*)(?:\..*)?/));
+			const stem = match[1];
 			json = `${stem}.json`;
 		}
 
+		/**
+		 * @param {string | Blob} url_or_blob
+		 * @returns {Promise<Blob>}
+		 */
 		async function fetchBlob(url_or_blob) {
 			if (typeof url_or_blob === 'string') {
 				const res = await fetch(url_or_blob);
 				if (res.status == 200) {
 					return await res.blob();
 				} else {
-					throw `HTTP ${res.status}`;
+					throw Error(`HTTP ${res.status}`);
 				}
 			} else {
 				return url_or_blob;
@@ -106,9 +159,7 @@
 
 		let animations;
 		try {
-			const p = fetchBlob(png);
-			const j = fetchBlob(json);
-			animations = await load(await p, await j);
+			animations = await load(...await Promise.all([fetchBlob(png), fetchBlob(json)]));
 		} catch (e) {
 			container.innerText = '';
 			throw e;
@@ -122,7 +173,7 @@
 			}
 		}
 
-		container.setAttribute('aria-busy', true);
+		container.setAttribute('aria-busy', 'true');
 		container.innerText = '';
 
 		const ser = new XMLSerializer();
@@ -158,13 +209,17 @@
 
 	window.addEventListener('popstate', e => {
 		if (e.state) {
-			render(...e.state);
+			const [png, json] = e.state;
+			render(png, json);
 		} else {
-			render(new URLSearchParams(location.search).get('uri'));
+			const uri = new URLSearchParams(location.search).get('uri');
+			if (uri) {
+				render(uri);
+			}
 		}
 	});
 
-	const form = document.getElementById('spriteForm');
+	const form = /** @type {HTMLFormElement} */ (document.getElementById('spriteForm'));
 	form.addEventListener('submit', e => {
 		if (form.uri.value !== new URLSearchParams(location.search).get('uri')) {
 			history.pushState(null, '', `?uri=${form.uri.value}`);
@@ -174,7 +229,9 @@
 	});
 	const onFileChange = () => {
 		if (form.png.value && form.json.value) {
+			/** @type {File} */
 			const png = form.png.files[0];
+			/** @type {File} */
 			const json = form.json.files[0];
 			history.pushState([png, json], '', location.pathname);
 			render(png, json);
@@ -189,14 +246,23 @@
 		render(uri);
 	}
 
-	const presets = document.getElementById('presets');
+	/**
+	 * @param {Event} e
+	 * @returns {void}
+	 */
+	function onPresetClick(e) {
+		const a = /** @type {HTMLAnchorElement} */ (e.target);
+		const uri = new URLSearchParams(a.search).get('uri');
+		if (!uri) {
+			return;
+		}
+		history.pushState(null, '', a.href);
+		form.uri.value = uri;
+		render(uri);
+		e.preventDefault();
+	}
+
 	for (const a of document.querySelectorAll('#presets a')) {
-		a.addEventListener('click', e => {
-			history.pushState(null, '', a.href);
-			const uri = new URLSearchParams(a.search).get('uri');
-			form.uri.value = uri;
-			render(uri);
-			e.preventDefault();
-		});
+		a.addEventListener('click', onPresetClick);
 	}
 })();
